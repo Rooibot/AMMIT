@@ -12,13 +12,13 @@ struct FCurveGenerationVelocity
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Toggles")
 	bool bX { true };
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Toggles")
 	bool bY { true };
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Toggles")
 	bool bZ { true };
 };
 

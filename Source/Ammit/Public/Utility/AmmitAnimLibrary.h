@@ -18,7 +18,7 @@ class AMMIT_API UAmmitAnimLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="AMMIT")
 	static bool WriteCurveTrackFromKeys(UAnimSequence* Sequence, const FName TrackName,
 		TArray<FAmmitCurvePoint> CurvePoints, const FAmmitModifierState Context,
 		ERichCurveInterpMode InterpMode = RCIM_Cubic, ERichCurveTangentMode TangentMode = RCTM_Auto,

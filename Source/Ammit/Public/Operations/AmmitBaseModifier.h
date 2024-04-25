@@ -30,30 +30,30 @@ public:
 
 	FString GetOperationName() const;
 	
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, Category="AMMIT|Operations")
 	FString GetDefaultOperationName() const;
 	
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, Category="AMMIT|Operations")
 	bool InitializeOperation(const FAmmitModifierState& Context);
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, Category="AMMIT|Operations")
 	bool PreProcessAnimation(const FAmmitModifierState& Context);
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, Category="AMMIT|Operations")
 	void ProcessAnimation(const FAmmitModifierState& Context);
 	
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, Category="AMMIT|Operations")
 	void PostProcessAnimation(const FAmmitModifierState& Context);
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, Category="AMMIT|Operations")
 	void FinalReport(const FAmmitModifierState& Context);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="AMMIT|Operations")
 	void AddToLog(const FAmmitModifierState& State, EAmmitLogVerbosity Level, const FString String);
 
 	static bool GetBoneTransformAtTime(const UAnimSequence *Sequence, const FBoneReference& Bone, float Time, FTransform& Transform, bool bWalkParents = true);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="AMMIT|Operations")
 	void MarkStateDirty(const FAmmitModifierState& Context);
 	
 	void AddToLog(const FAmmitModifierState& State, EAmmitLogVerbosity Level, const FText& Text)
