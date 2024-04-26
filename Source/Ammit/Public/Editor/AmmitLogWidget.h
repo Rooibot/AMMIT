@@ -10,7 +10,7 @@
 /**
  *
  */
-class AMMITEDITOR_API SAmmitLogWidget : public SCompoundWidget
+class AMMIT_API SAmmitLogWidget : public SCompoundWidget
 {
 public:
     SLATE_BEGIN_ARGS(SAmmitLogWidget) {}

@@ -2,6 +2,8 @@
 
 #include "Ammit.h"
 #include "AmmitLog.h"
+#include "Editor/AmmitFlowAssetTypeActions.h"
+#include "Editor/AmmitStyle.h"
 
 #define LOCTEXT_NAMESPACE "AMMIT"
 
@@ -9,13 +11,22 @@ DEFINE_LOG_CATEGORY(LogAmmit)
 
 void FAmmitModule::StartupModule()
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+	AmmitFlowAssetTypeActions = MakeShared<FAmmitFlowAssetTypeActions>();
+	FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(AmmitFlowAssetTypeActions.ToSharedRef());
+
+	const FString ProjectResourceDir = FPaths::ProjectPluginsDir() / TEXT("AMMIT/Resources");
+	const FString EngineResourceDir = FPaths::EnginePluginsDir() / TEXT("AMMIT/Resources");
+
+	FAmmitStyle::Initialize();
+	FAmmitStyle::ReloadTextures();
 }
 
 void FAmmitModule::ShutdownModule()
 {
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
+	if (!FModuleManager::Get().IsModuleLoaded("AssetTools")) return;
+	FAssetToolsModule::GetModule().Get().UnregisterAssetTypeActions(AmmitFlowAssetTypeActions.ToSharedRef());
+
+	FAmmitStyle::Shutdown();
 }
 
 #undef LOCTEXT_NAMESPACE

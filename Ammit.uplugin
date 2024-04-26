@@ -17,11 +17,6 @@
 	"Modules": [
 		{
 			"Name": "Ammit",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		},
-		{
-			"Name": "AmmitEditor",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}

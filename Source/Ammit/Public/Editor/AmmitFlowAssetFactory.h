@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class AMMITEDITOR_API UAmmitFlowAssetFactory : public UFactory
+class AMMIT_API UAmmitFlowAssetFactory : public UFactory
 {
 	GENERATED_BODY()
 public:

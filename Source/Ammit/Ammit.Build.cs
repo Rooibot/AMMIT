@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class Ammit : ModuleRules
 {
@@ -11,6 +12,7 @@ public class Ammit : ModuleRules
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
+				Path.Combine(ModuleDirectory, "Public/Editor")
 			}
 			);
 				
@@ -18,6 +20,7 @@ public class Ammit : ModuleRules
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				// ... add other private include paths required here ...
+				Path.Combine(ModuleDirectory, "Private/Editor")
 			}
 			);
 			
@@ -26,6 +29,11 @@ public class Ammit : ModuleRules
 			new string[]
 			{
 				"Core",
+				"PropertyEditor",
+				"Projects",
+				"AnimGraph",
+				"AnimationBlueprintLibrary",
+				"UnrealEd"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -37,7 +45,7 @@ public class Ammit : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore",
+				"SlateCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

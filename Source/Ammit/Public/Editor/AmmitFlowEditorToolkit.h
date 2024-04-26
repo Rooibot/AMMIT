@@ -9,7 +9,7 @@
 /**
  *
  */
-class AMMITEDITOR_API FAmmitFlowEditorToolkit : public FAssetEditorToolkit
+class AMMIT_API FAmmitFlowEditorToolkit : public FAssetEditorToolkit
 {
 public:
 

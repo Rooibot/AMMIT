@@ -8,7 +8,7 @@
 /**
  *
  */
-class AMMITEDITOR_API FAmmitFlowAssetTypeActions : public FAssetTypeActions_Base
+class AMMIT_API FAmmitFlowAssetTypeActions : public FAssetTypeActions_Base
 {
 public:
 	FAmmitFlowAssetTypeActions();

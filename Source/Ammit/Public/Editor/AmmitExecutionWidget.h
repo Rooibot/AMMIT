@@ -12,7 +12,7 @@ DECLARE_DELEGATE(FOnExecuteFlow)
 /**
  *
  */
-class AMMITEDITOR_API SAmmitExecutionWidget : public SCompoundWidget
+class AMMIT_API SAmmitExecutionWidget : public SCompoundWidget
 {
 public:
     SLATE_BEGIN_ARGS(SAmmitExecutionWidget)

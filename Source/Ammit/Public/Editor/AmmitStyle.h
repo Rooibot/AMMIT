@@ -7,7 +7,7 @@
 /**
  * 
  */
-class AMMITEDITOR_API FAmmitStyle
+class AMMIT_API FAmmitStyle
 {
 	
 public:
