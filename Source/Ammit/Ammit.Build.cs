@@ -33,7 +33,8 @@ public class Ammit : ModuleRules
 				"Projects",
 				"AnimGraph",
 				"AnimationBlueprintLibrary",
-				"UnrealEd"
+				"UnrealEd",
+				"Persona"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
