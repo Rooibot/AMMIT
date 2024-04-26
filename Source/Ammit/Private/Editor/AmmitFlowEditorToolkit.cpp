@@ -50,7 +50,7 @@ void FAmmitFlowEditorToolkit::RegisterTabSpawners(const TSharedRef<FTabManager>&
 
 	WorkspaceMenuCategory = InTabManager->AddLocalWorkspaceMenuCategory(INVTEXT("Ammit"));
 
-	InTabManager->RegisterTabSpawner("AmmitFlowExecutionTab", FOnSpawnTab::CreateLambda([=](const FSpawnTabArgs&)
+	InTabManager->RegisterTabSpawner("AmmitFlowExecutionTab", FOnSpawnTab::CreateLambda([this](const FSpawnTabArgs&)
 	{
 		return SNew(SDockTab)
 		[
@@ -65,7 +65,7 @@ void FAmmitFlowEditorToolkit::RegisterTabSpawners(const TSharedRef<FTabManager>&
 	.SetDisplayName(INVTEXT("Execution"))
 	.SetGroup(WorkspaceMenuCategory.ToSharedRef());
 
-	InTabManager->RegisterTabSpawner("AmmitFlowOutputLog", FOnSpawnTab::CreateLambda([=](const FSpawnTabArgs&)
+	InTabManager->RegisterTabSpawner("AmmitFlowOutputLog", FOnSpawnTab::CreateLambda([this](const FSpawnTabArgs&)
 	{
 		return SNew(SDockTab)
 			[
