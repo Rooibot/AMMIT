@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AssetTypeCategories.h"
 #include "Modules/ModuleManager.h"
 
 class FAmmitFlowAssetTypeActions;
@@ -15,6 +16,10 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
+	EAssetTypeCategories::Type GetAmmitCategoryBit() const { return AmmitTypeCategoryBit; }
+	
 private:
-	TSharedPtr<FAmmitFlowAssetTypeActions> AmmitFlowAssetTypeActions;	
+	TSharedPtr<FAmmitFlowAssetTypeActions> AmmitFlowAssetTypeActions;
+
+	EAssetTypeCategories::Type AmmitTypeCategoryBit;	
 };

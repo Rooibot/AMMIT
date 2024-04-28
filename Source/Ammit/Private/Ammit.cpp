@@ -17,6 +17,8 @@ void FAmmitModule::StartupModule()
 	const FString ProjectResourceDir = FPaths::ProjectPluginsDir() / TEXT("AMMIT/Resources");
 	const FString EngineResourceDir = FPaths::EnginePluginsDir() / TEXT("AMMIT/Resources");
 
+	// AmmitTypeCategoryBit = FAssetToolsModule::GetModule().Get().RegisterAdvancedAssetCategory(FName(TEXT("AMMIT")), LOCTEXT("AmmitCategory", "AMMIT"));
+	
 	FAmmitStyle::Initialize();
 	FAmmitStyle::ReloadTextures();
 }

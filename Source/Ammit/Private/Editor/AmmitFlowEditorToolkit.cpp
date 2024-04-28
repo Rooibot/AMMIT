@@ -538,8 +538,9 @@ bool FAmmitFlowEditorToolkit::UpdateStateForSequence(FAmmitModifierState& State,
 	FAmmitBonePoint HighestPoint;
 	FAmmitBonePoint LowestPoint;
 	float FarthestYaw = 0.f;
+	bool bIsPivot = false;
 
-	if (!CollectTransformTracks(State, Sequence, FarthestPoint, HighestPoint, LowestPoint, FarthestYaw))
+	if (!CollectTransformTracks(State, Sequence, FarthestPoint, HighestPoint, LowestPoint, FarthestYaw, bIsPivot))
 	{
 		return false;
 	}
@@ -575,9 +576,8 @@ bool FAmmitFlowEditorToolkit::UpdateStateForSequence(FAmmitModifierState& State,
 		const float FirstSpeed = FirstMove.DeltaTransform.GetTranslation().Size2D() / FirstMove.DeltaTime;
 		const float LastSpeed = LastMove.DeltaTransform.GetTranslation().Size2D() / LastMove.DeltaTime;
 		const float Difference = LastSpeed - FirstSpeed;
-		const float AngleDifference = FMath::Abs(UKismetMathLibrary::NormalizeAxis(UKismetMathLibrary::DegAcos(FirstDirection.Dot(LastDirection))));
 
-		if (AngleDifference > Flow->PivotAngleThreshold)
+		if (bIsPivot)
 		{
 			State.DetectedSequenceType = EAmmitSequenceType::Pivot;
 		}
@@ -627,7 +627,7 @@ bool FAmmitFlowEditorToolkit::UpdateStateForSequence(FAmmitModifierState& State,
 }
 
 bool FAmmitFlowEditorToolkit::CollectTransformTracks(FAmmitModifierState& State, UAnimSequence* Sequence,
-	FAmmitBonePoint& FarthestPoint, FAmmitBonePoint& HighestPoint, FAmmitBonePoint& LowestPoint, float& FarthestYaw)
+	FAmmitBonePoint& FarthestPoint, FAmmitBonePoint& HighestPoint, FAmmitBonePoint& LowestPoint, float& FarthestYaw, bool &bOutPivot)
 {
 	State.RootPoints.Empty();
 	
@@ -653,11 +653,17 @@ bool FAmmitFlowEditorToolkit::CollectTransformTracks(FAmmitModifierState& State,
 	
 	FTransform RootTransform = FTransform::Identity;
 	float LastTime = 0.f;
+
+	FVector LastDirection = FVector::ZeroVector;
+	float SustainedOppositeDirectionTime = 0.f;
+	int32 NumberDirectionShifts = 0;
+	bool bWatchDirectionShifts = false;
+	FTransform AccumulatedDirectionShift = FTransform::Identity;
 	
 	FTransform LastTransform = FTransform::Identity;
 	for (int Idx = 0; Idx < State.AnimationSequenceFrames; ++Idx)
 	{
-		const float FrameTime = Idx * DeltaFrame;
+		const float FrameTime = Sequence->GetTimeAtFrame(Idx);
 
 		RootTransform = Model->EvaluateBoneTrackTransform(RootBoneName, Idx, EAnimInterpolationType::Step);
 
@@ -688,11 +694,36 @@ bool FAmmitFlowEditorToolkit::CollectTransformTracks(FAmmitModifierState& State,
 		{
 			LowestPoint = Point;
 		}
+
+		FVector Direction = Point.DeltaTransform.GetTranslation().GetSafeNormal2D();
+		if (!LastDirection.IsZero())
+		{
+			const float AngleDifference = FMath::Abs(UKismetMathLibrary::NormalizeAxis(UKismetMathLibrary::DegAcos(Direction.Dot(LastDirection))));
+			if (AngleDifference > State.OwnerFlow->PivotAngleThreshold)
+			{
+				bWatchDirectionShifts = true;
+				AccumulatedDirectionShift = FTransform::Identity;
+				SustainedOppositeDirectionTime = 0.f;
+			}
+			else if (bWatchDirectionShifts)
+			{
+				AccumulatedDirectionShift += Point.DeltaTransform;
+				SustainedOppositeDirectionTime += Point.DeltaTime;
+
+				if (SustainedOppositeDirectionTime > 1.f || AccumulatedDirectionShift.GetTranslation().Length() > 30.f)
+				{
+					NumberDirectionShifts++;
+				}
+			}
+		}
 		
 		LastTime = FrameTime;
 		LastTransform = RootTransform;
+		LastDirection = Direction;
 	}
 
+	bOutPivot = NumberDirectionShifts == 1;
+	
 	return true;
 }
 
@@ -702,7 +733,8 @@ void FAmmitFlowEditorToolkit::RefreshStateForSequence(FAmmitModifierState& State
 	FAmmitBonePoint HighestPoint;
 	FAmmitBonePoint LowestPoint;
 	float FarthestYaw;
+	bool bIsPivot;
 
-	CollectTransformTracks(State, Sequence, FarthestPoint, HighestPoint, LowestPoint, FarthestYaw);
+	CollectTransformTracks(State, Sequence, FarthestPoint, HighestPoint, LowestPoint, FarthestYaw, bIsPivot);
 }
 

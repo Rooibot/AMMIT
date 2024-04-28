@@ -5,6 +5,7 @@
 #include "AmmitLog.h"
 #include "Flow/AmmitBaseFlow.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "UObject/FastReferenceCollector.h"
 #include "Utility/AmmitAnimLibrary.h"
 
 #define LOCTEXT_NAMESPACE "AMMIT"
@@ -43,6 +44,7 @@ bool UCurveGenerationModifier::PreProcessAnimation_Implementation(const FAmmitMo
 	MaxDistancePoint = FVector::ZeroVector;
 	YawRemainingPoints.Empty();
 	MaxYawAngle = 0.f;
+	YawWeightPoints.Empty();
 	SpeedPoints.Empty();
 	MaxLinearVelocity = 0.f;
 	LocomotionAnglePoints.Empty();
@@ -83,6 +85,19 @@ bool UCurveGenerationModifier::PreProcessAnimation_Implementation(const FAmmitMo
 
 void UCurveGenerationModifier::ProcessAnimation_Implementation(const FAmmitModifierState& State)
 {
+	if (bEraseExistingTracks)
+	{
+		UAmmitAnimLibrary::RemoveAllCurveTracks(State.AnimationSequence);
+	}
+	
+	if (bYawRemaining)
+	{
+		FAmmitCurvePoint StartPoint;
+		StartPoint.KeyTime = 0.f;
+		StartPoint.Value = 1.f;
+		YawWeightPoints.Add(StartPoint);
+	}
+	
 	for(int32 Idx = 1; Idx < State.RootPoints.Num(); Idx++)
 	{
 		const FAmmitBonePoint& Point = State.RootPoints[Idx];
@@ -131,6 +146,23 @@ void UCurveGenerationModifier::ProcessAnimation_Implementation(const FAmmitModif
 				YawValue.KeyTime = Point.Time;
 				YawValue.Value = Value;
 				YawRemainingPoints.Add(YawValue);
+
+				if (Value == 0.f)
+				{
+					FAmmitCurvePoint WeightValue;
+					if (YawWeightPoints.Num() == 1)
+					{
+						WeightValue.KeyTime = Point.Time;
+						WeightValue.Value = 1.f;
+						YawWeightPoints.Add(WeightValue);
+					}
+					else if (YawWeightPoints.Num() == 2)
+					{
+						WeightValue.KeyTime = Point.Time;
+						WeightValue.Value = 0.f;
+						YawWeightPoints.Add(WeightValue);
+					}
+				}
 			}
 		}
 
@@ -185,6 +217,16 @@ void UCurveGenerationModifier::ProcessAnimation_Implementation(const FAmmitModif
 		}
 	}
 
+	if (bYawRemaining)
+	{
+		const FAmmitBonePoint Last = State.RootPoints.Last();
+
+		FAmmitCurvePoint LastWeight;
+		LastWeight.KeyTime = Last.Time;
+		LastWeight.Value = 0.f;
+		YawWeightPoints.Add(LastWeight);
+	}
+
 	// All points have been gathered.
 	if (bDistanceMatch) WriteDistanceTrack(State);
 	if (bYawRemaining) WriteYawTrack(State);
@@ -205,8 +247,8 @@ void UCurveGenerationModifier::FinalReport_Implementation(const FAmmitModifierSt
 
 void UCurveGenerationModifier::WriteDistanceTrack(const FAmmitModifierState& State)
 {
-	FName TrackName = FName(TEXT("Distance"));
 	bool bShouldWriteDistanceTrack = true;
+	FName TrackName = DistanceTrackName;
 
 	switch(State.DetectedSequenceType)
 	{
@@ -225,11 +267,11 @@ void UCurveGenerationModifier::WriteDistanceTrack(const FAmmitModifierState& Sta
 		bShouldWriteDistanceTrack = true;
 		if (MaxDistancePoint.Z > 0.f)
 		{
-			TrackName = FName(TEXT("DistanceToApex"));
+			TrackName = DistanceJumpApexTrackName;
 		}
 		else
 		{
-			TrackName = FName(TEXT("DistanceToGround"));
+			TrackName = DistanceJumpLandTrackName;
 		}
 		break;
 	}
@@ -241,8 +283,6 @@ void UCurveGenerationModifier::WriteDistanceTrack(const FAmmitModifierState& Sta
 
 void UCurveGenerationModifier::WriteYawTrack(const FAmmitModifierState& State)
 {
-	FName TrackName = FName(TEXT("YawRemaining"));
-
 	// Write track if we have a sufficiently large change in yaw, even if it's not turn-in-place/pivot.
 	bool bShouldWriteYawTrack = FMath::Abs(MaxYawAngle) > State.OwnerFlow->IdleTurnThreshold;
 	
@@ -255,7 +295,8 @@ void UCurveGenerationModifier::WriteYawTrack(const FAmmitModifierState& State)
 
 	if (!bShouldWriteYawTrack) return;
 
-	WriteKeysToTrack(State, TrackName, YawRemainingPoints);
+	WriteKeysToTrack(State, YawTrackName, YawRemainingPoints);
+	WriteKeysToTrack(State, YawWeightTrackName, YawWeightPoints);
 }
 
 void UCurveGenerationModifier::WriteLinearVelocityTrack(const FAmmitModifierState& State)
@@ -265,8 +306,7 @@ void UCurveGenerationModifier::WriteLinearVelocityTrack(const FAmmitModifierStat
 
 	if (MaxLinearVelocity < 20.f) return;
 
-	FName TrackName = FName(TEXT("LinearVelocity"));
-	WriteKeysToTrack(State, TrackName, SpeedPoints);
+	WriteKeysToTrack(State, LinearVelocityTrackName, SpeedPoints);
 }
 
 void UCurveGenerationModifier::WriteLocomotionAngleTrack(const FAmmitModifierState& State)
@@ -275,8 +315,7 @@ void UCurveGenerationModifier::WriteLocomotionAngleTrack(const FAmmitModifierSta
 		State.DetectedSequenceType == EAmmitSequenceType::TurnInPlace ||
 		State.DetectedSequenceType == EAmmitSequenceType::JumpOrClimb) return;
 
-	FName TrackName = FName(TEXT("LocomotionAngle"));
-	WriteKeysToTrack(State, TrackName, LocomotionAnglePoints);
+	WriteKeysToTrack(State, LocomotionAngleTrackName, LocomotionAnglePoints);
 }
 
 void UCurveGenerationModifier::WriteSeparateVelocityTracks(const FAmmitModifierState& State)
@@ -290,9 +329,9 @@ void UCurveGenerationModifier::WriteSeparateVelocityTracks(const FAmmitModifierS
 	const bool bWriteY = true;
 	const bool bWriteZ = State.DetectedSequenceType == EAmmitSequenceType::JumpOrClimb;
 
-	if (bWriteX) WriteKeysToTrack(State, FName(TEXT("LinearVelocity_X")), VelocityPointsX);
-	if (bWriteY) WriteKeysToTrack(State, FName(TEXT("LinearVelocity_Y")), VelocityPointsY);
-	if (bWriteZ) WriteKeysToTrack(State, FName(TEXT("LinearVelocity_Z")), VelocityPointsZ);
+	if (bWriteX) WriteKeysToTrack(State, FName(LinearAxisVelocityTrackPrefix + TEXT("_X")), VelocityPointsX);
+	if (bWriteY) WriteKeysToTrack(State, FName(LinearAxisVelocityTrackPrefix + TEXT("_Y")), VelocityPointsY);
+	if (bWriteZ) WriteKeysToTrack(State, FName(LinearAxisVelocityTrackPrefix + TEXT("_Z")), VelocityPointsZ);
 }
 
 void UCurveGenerationModifier::WriteKeysToTrack(const FAmmitModifierState& State, const FName& TrackName,

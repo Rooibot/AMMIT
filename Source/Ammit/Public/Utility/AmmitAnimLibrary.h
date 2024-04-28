@@ -24,6 +24,8 @@ public:
 		ERichCurveInterpMode InterpMode = RCIM_Cubic, ERichCurveTangentMode TangentMode = RCTM_Auto,
 		ERichCurveExtrapolation PreExtrapolation = RCCE_CycleWithOffset, ERichCurveExtrapolation PostExtrapolation = RCCE_CycleWithOffset);
 
+	static void RemoveAllCurveTracks(UAnimSequence* Sequence);
+	
 private:
 	static void LogMessageInternal(const FString& Message, EAmmitLogVerbosity Level = EAmmitLogVerbosity::Log, const FAmmitModifierState* Context = nullptr);
 	static void LogMessageInternal(const FText& Message, EAmmitLogVerbosity Level = EAmmitLogVerbosity::Log, const FAmmitModifierState* Context = nullptr)

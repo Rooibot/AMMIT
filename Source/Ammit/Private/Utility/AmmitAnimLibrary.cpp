@@ -58,8 +58,18 @@ bool UAmmitAnimLibrary::WriteCurveTrackFromKeys(UAnimSequence* Sequence, const F
 	return true;
 }
 
+void UAmmitAnimLibrary::RemoveAllCurveTracks(UAnimSequence* Sequence)
+{
+	IAnimationDataController& Controller = Sequence->GetController();
+	Controller.OpenBracket(FText::FromString(TEXT("AMMIT")), false);
+
+	Controller.RemoveAllCurvesOfType(ERawCurveTrackTypes::RCT_Float);
+	
+	Controller.CloseBracket(false);
+}
+
 void UAmmitAnimLibrary::LogMessageInternal(const FString& Message, EAmmitLogVerbosity Level,
-	const FAmmitModifierState* Context)
+                                           const FAmmitModifierState* Context)
 {
 	if (Context != nullptr && Context->OwnerFlow)
 	{

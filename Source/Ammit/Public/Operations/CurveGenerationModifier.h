@@ -39,9 +39,22 @@ public:
 	virtual void PostProcessAnimation_Implementation(const FAmmitModifierState& State) override;
 	virtual void FinalReport_Implementation(const FAmmitModifierState& State) override;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings", meta=(DisplayName="Clear Tracks"))
+	/// Erase all curves already in the animation sequence before writing our data.
+	bool bEraseExistingTracks { false };
+	
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings")
 	bool bDistanceMatch { true };
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings", meta=(EditCondition="bDistanceMatch", EditConditionHides))
+	FName DistanceTrackName { TEXT("Distance") };
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings", meta=(EditCondition="bDistanceMatch", EditConditionHides))
+	FName DistanceJumpApexTrackName { TEXT("DistanceToApex") };
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings", meta=(EditCondition="bDistanceMatch", EditConditionHides))
+	FName DistanceJumpLandTrackName { TEXT("DistanceToGround") };
+	
 	TArray<FAmmitCurvePoint> DistanceMatchPoints;
 	FVector MaxDistancePoint { FVector::ZeroVector };
 	float MaxDistance { 0.f };
@@ -50,24 +63,41 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings")
 	bool bYawRemaining { true };
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings", meta=(EditCondition="bYawRemaining", EditConditionHides))
+	FName YawTrackName { TEXT("RemainingTurnYaw") };
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings", meta=(EditCondition="bYawRemaining", EditConditionHides))
+	FName YawWeightTrackName { TEXT("TurnYawWeight") };
+	
 	TArray<FAmmitCurvePoint> YawRemainingPoints;
 	float MaxYawAngle { 0.f };
+
+	TArray<FAmmitCurvePoint> YawWeightPoints;
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings")
 	bool bLocomotionAngle { true };
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings", meta=(EditCondition="bLocomotionAngle", EditConditionHides))
+	FName LocomotionAngleTrackName { TEXT("LocomotionAngle") };
+	
 	TArray<FAmmitCurvePoint> LocomotionAnglePoints;
 	float MaxLocomotionAngle { 0.f };
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings")
 	bool bLinearVelocity { true };
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings", meta=(EditCondition="bLinearVelocity", EditConditionHides))
+	FName LinearVelocityTrackName { TEXT("LinearVelocity") };
+	
 	TArray<FAmmitCurvePoint> SpeedPoints;
 	float MaxLinearVelocity { 0.f };
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings")
 	bool bLinearAxisVelocity { true };
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Settings", meta=(EditCondition="bLinearAxisVelocity", EditConditionHides))
+	FString LinearAxisVelocityTrackPrefix { TEXT("LinearVelocity") };
+	
 	TArray<FAmmitCurvePoint> VelocityPointsX;
 	TArray<FAmmitCurvePoint> VelocityPointsY;
 	TArray<FAmmitCurvePoint> VelocityPointsZ;

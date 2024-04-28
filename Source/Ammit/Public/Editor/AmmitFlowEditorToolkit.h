@@ -50,7 +50,7 @@ private:
 	TObjectPtr<UAnimSequence> DuplicateSequenceToPath(const TObjectPtr<UAnimSequence> SourceSequence, FString DestinationPath) const;
 
 	bool UpdateStateForSequence(FAmmitModifierState& State, UAnimSequence* Sequence);
-	bool CollectTransformTracks(FAmmitModifierState& State, UAnimSequence* Sequence, FAmmitBonePoint& FarthestPoint, FAmmitBonePoint& HighestPoint, FAmmitBonePoint& LowestPoint, float& FarthestYaw);
+	bool CollectTransformTracks(FAmmitModifierState& State, UAnimSequence* Sequence, FAmmitBonePoint& FarthestPoint, FAmmitBonePoint& HighestPoint, FAmmitBonePoint& LowestPoint, float& FarthestYaw, bool &bOutPivot);
 	void RefreshStateForSequence(FAmmitModifierState& State, UAnimSequence* Sequence);
 	
 	TObjectPtr<UAmmitBaseFlow> Flow { nullptr };
